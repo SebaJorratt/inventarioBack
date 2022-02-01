@@ -1,0 +1,38 @@
+{
+  "name": "inventarioback",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "build": "babel index.js -d dist",
+    "start": "babel-node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SebaJorratt/inventarioBack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SebaJorratt/inventarioBack/issues"
+  },
+  "homepage": "https://github.com/SebaJorratt/inventarioBack#readme",
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "connect-history-api-fallback": "^1.6.0",
+    "core-js": "^3.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "express-myconnection": "^1.0.4",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.8",
+    "@babel/core": "^7.16.12",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.11"
+  }
+}
