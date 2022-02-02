@@ -27,6 +27,7 @@ app.use(myconn(mysql, dbOptions, 'single'))
 
 // Rutas 
 app.use('/api', require('./routes/api'));
+app.use('/auth', require('./routes/auth'));
 
 // Middleware para Vue.js router modo history
 const history = require('connect-history-api-fallback');
