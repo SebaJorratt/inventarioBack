@@ -14,7 +14,7 @@ const verificarAuth = (req,res,next) =>{
 }
 
 const verificarAdmin = (req,res,next) =>{
-    const rol = req.usuario.tipoUsuario
+    const rol = req.usuario[0].tipoUsuario
     if(rol === 1){
         next();
     }else{

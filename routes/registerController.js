@@ -13,27 +13,32 @@ exports.register = (req, res)=>{
                 return res.send(err)
             }
             else if(rows.length > 0){
-                err = 'El email ingresado ya existe';
-                return res.send(err)
+                return res.status(400).json({
+                    mensaje: 'Este email ya se encuentra en uso'
+                })
             }
             else{
                 req.getConnection((err, conn) => {
                     if(err) return res.send(err)
                     conn.query('SELECT nomUsuario FROM usuario WHERE nomUsuario = ?',nomUsuario,(err, rows)=>{
                         if(err){
-                            return res.send(err)
+                            return res.status(400).json({
+                                mensaje: 'Error del sistema'
+                            })
                         }
                         else if(rows.length > 0){
-                            err = 'El nombre de usuario ingresado ya existe';
-                            return res.send(err)
+                            return res.status(400).json({
+                                mensaje: 'Este nombre de usuario ya se encuentra en uso'
+                            })
                         }
                         else{
                             req.getConnection((err, conn) => {
                                 if(err) return res.send(err)
                                 conn.query('INSERT INTO usuario (nomUsuario, correo, password, tipoUsuario) VALUES (?, ?, ?, ?)',[nomUsuario, correo, password, tipo],(err, rows)=>{
                                     if(err){
-                                        console.log(err)
-                                        return err;
+                                        return res.status(400).json({
+                                            mensaje: 'Error del sistema al añadir a un nuevo Usuario'
+                                        })
                                     }
                                     res.json(rows)
                                 })

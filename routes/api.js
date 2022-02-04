@@ -4,7 +4,7 @@ const router = express.Router();
 
 //Todas las rutas de POST
 //Agregar una ubicacion
-router.post('/agregaUbicacion', verificarAuth, (req,res) => {
+router.post('/agregaUbicacion', (req,res) => {
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         conn.query('INSERT INTO ubicacion (comuna, provincia, region) VALUES (?,?,?)',[req.body.comuna, req.body.provincia, req.body.region], (err, rows)=>{
@@ -15,7 +15,7 @@ router.post('/agregaUbicacion', verificarAuth, (req,res) => {
 })
 
 //Agregar una Marca
-router.post('/agregaMarca', verificarAuth, (req,res) => {
+router.post('/agregaMarca', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -27,7 +27,7 @@ router.post('/agregaMarca', verificarAuth, (req,res) => {
 })
 
 //Agregar un Tipo
-router.post('/agregaTipo', verificarAuth, (req,res) => {
+router.post('/agregaTipo', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -39,7 +39,7 @@ router.post('/agregaTipo', verificarAuth, (req,res) => {
 })
 
 //Agregar un Funcionario
-router.post('/agregaFuncionario', verificarAuth, (req,res) => {
+router.post('/agregaFuncionario', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -51,7 +51,7 @@ router.post('/agregaFuncionario', verificarAuth, (req,res) => {
 })
 
 //Agregar una Dependencia
-router.post('/agregaDependencia', verificarAuth, (req,res) => {
+router.post('/agregaDependencia', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -63,7 +63,7 @@ router.post('/agregaDependencia', verificarAuth, (req,res) => {
 })
 
 //Agregar un Equipo
-router.post('/agregaEquipo', verificarAuth, (req,res) => {
+router.post('/agregaEquipo', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -75,7 +75,7 @@ router.post('/agregaEquipo', verificarAuth, (req,res) => {
 })
 
 //Agregar un Historial
-router.post('/agregaHistorial', verificarAuth, (req,res) => {
+router.post('/agregaHistorial', (req,res) => {
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -90,7 +90,7 @@ router.post('/agregaHistorial', verificarAuth, (req,res) => {
 //PRIMERA VISTA
 //Desplegar a los equipos que actualmente tienen un dueño
 
-router.get('/equiposConDueno', verificarAuth, (req, res) => {
+router.get('/equiposConDueno', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, t.tipoEquipo, e.serie, e.codEquipo, d.nomJardin, d.codJardin, f.nombre, h.zona From equipo as e Left Join historial as h ON h.corrEquipo = e.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join funcionario as f ON f.codigo = h.codigo Where h.estado = true;','',(err, rows)=>{
@@ -101,7 +101,7 @@ router.get('/equiposConDueno', verificarAuth, (req, res) => {
 })
 
 //Desplegar a los equipos que actualmente no tienen un dueño
-router.get('/equiposSinDueno', verificarAuth, (req, res) => {
+router.get('/equiposSinDueno', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (e.corrEquipo = (Select corrEquipo FRom historial Where estado=false))) and e.estado != "Baja"','',(err, rows)=>{
@@ -112,7 +112,7 @@ router.get('/equiposSinDueno', verificarAuth, (req, res) => {
 })
 
 //Desplegar a los equipos que actualmente estan dados de baja
-router.get('/equiposBaja', verificarAuth, (req, res) => {
+router.get('/equiposBaja', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (e.corrEquipo = (Select corrEquipo FRom historial Where estado=false))) and e.estado = "Baja"','',(err, rows)=>{
@@ -123,7 +123,7 @@ router.get('/equiposBaja', verificarAuth, (req, res) => {
 })
 
 //Obtener datos de un equipo con la id de historial
-router.get('/datosEqpHist/:id', verificarAuth, (req, res) => {
+router.get('/datosEqpHist/:id', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select e.corrEquipo, e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From historial h, equipo e, tipo t, marca m Where h.codHistorial = ? and h.corrEquipo = e.corrEquipo and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.id,(err, rows)=>{
@@ -134,7 +134,7 @@ router.get('/datosEqpHist/:id', verificarAuth, (req, res) => {
 })
 
 //Obtener datos de equipo en base a su codigo
-router.get('/datosEqpSerie/:serie', verificarAuth, (req, res) => {
+router.get('/datosEqpSerie/:serie', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From equipo e, tipo t, marca m Where e.serie = ? and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.serie,(err, rows)=>{
@@ -146,7 +146,7 @@ router.get('/datosEqpSerie/:serie', verificarAuth, (req, res) => {
 
 //OBTENER DIFERENTES ENTIDADES DE LA BASE DE DATOS
 //Obtener Regiones
-router.get('/regiones', verificarAuth, (req, res) => {
+router.get('/regiones', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select DISTINCT region FROM ubicacion','',(err, rows)=>{
@@ -157,7 +157,7 @@ router.get('/regiones', verificarAuth, (req, res) => {
 })
 
 //Obtener Provincias
-router.get('/provincias/:region', verificarAuth, (req, res) => {
+router.get('/provincias/:region', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select DISTINCT provincia FROM ubicacion Where region = ?',req.params.region,(err, rows)=>{
@@ -168,7 +168,7 @@ router.get('/provincias/:region', verificarAuth, (req, res) => {
 })
 
 //Obtener Comunas
-router.get('/comunas/:provincia', verificarAuth, (req, res) => {
+router.get('/comunas/:provincia', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select DISTINCT comuna FROM ubicacion Where provincia = ?',req.params.provincia,(err, rows)=>{
@@ -179,7 +179,7 @@ router.get('/comunas/:provincia', verificarAuth, (req, res) => {
 })
 
 //Obtener Tipos de Equipos
-router.get('/tipos', verificarAuth, (req, res) => {
+router.get('/tipos', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select tipoEquipo FROM tipo','',(err, rows)=>{
@@ -190,7 +190,7 @@ router.get('/tipos', verificarAuth, (req, res) => {
 })
 
 //Obtener Marcas
-router.get('/marcas', verificarAuth, (req, res) => {
+router.get('/marcas', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select nomMarca FROM marca','',(err, rows)=>{
@@ -201,7 +201,7 @@ router.get('/marcas', verificarAuth, (req, res) => {
 })
 
 //Obtener Funcionarios
-router.get('/funcionarios', verificarAuth, (req, res) => {
+router.get('/funcionarios', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select * From funcionario','',(err, rows)=>{
@@ -212,7 +212,7 @@ router.get('/funcionarios', verificarAuth, (req, res) => {
 })
 
 //Obtener un funcionario desde la tabla para Editarlo
-router.get('/funcionario/:codigo', verificarAuth, (req, res) => {
+router.get('/funcionario/:codigo', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select * From funcionario where codigo = ?',req.params.codigo,(err, rows)=>{
@@ -223,7 +223,7 @@ router.get('/funcionario/:codigo', verificarAuth, (req, res) => {
 })
 
 //Obtener el historial de un funcionario
-router.get('/Histfuncionario/:codigo', verificarAuth, (req, res) => {
+router.get('/Histfuncionario/:codigo', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, d.nomJardin, h.zona FROM funcionario as f Left Join historial as h ON h.codigo = f.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and f.codigo = ?',req.params.codigo,(err, rows)=>{
@@ -234,7 +234,7 @@ router.get('/Histfuncionario/:codigo', verificarAuth, (req, res) => {
 })
 
 //Obtener los equipos Actuales de un funcionario
-router.get('/Actfuncionario/:codigo', verificarAuth, (req, res) => {
+router.get('/Actfuncionario/:codigo', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, d.nomJardin, h.zona FROM funcionario as f Left Join historial as h ON h.codigo = f.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = true and f.codigo = ?',req.params.codigo,(err, rows)=>{
@@ -245,7 +245,7 @@ router.get('/Actfuncionario/:codigo', verificarAuth, (req, res) => {
 })
 
 //Obtener dependencias
-router.get('/dependencias', verificarAuth, (req, res) => {
+router.get('/dependencias', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select * From dependencia','',(err, rows)=>{
@@ -256,7 +256,7 @@ router.get('/dependencias', verificarAuth, (req, res) => {
 })
 
 //Obtener una dependencia desde la tabla para Editarla
-router.get('/dependencia/:codJardin', verificarAuth, (req, res) => {
+router.get('/dependencia/:codJardin', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select d.nomJardin, u.region, u.comuna, u.provincia From dependencia d, ubicacion u where codJardin = ? and u.numUbicacion = d.numUbicacion',req.params.codJardin,(err, rows)=>{
@@ -267,7 +267,7 @@ router.get('/dependencia/:codJardin', verificarAuth, (req, res) => {
 })
 
 //Obtener el historial de una dependencia
-router.get('/Histdependencia/:codJardin', verificarAuth, (req, res) => {
+router.get('/Histdependencia/:codJardin', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, f.nombre, h.zona From dependencia as d Left Join historial as h ON h.codJardin = d.codJardin Left Join funcionario as f ON f.codigo = h.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and d.codJardin = ?',req.params.codJardin,(err, rows)=>{
@@ -278,7 +278,7 @@ router.get('/Histdependencia/:codJardin', verificarAuth, (req, res) => {
 })
 
 //Obtener equipos Actuales de una dependencia
-router.get('/Actdependencia/:codJardin', verificarAuth, (req, res) => {
+router.get('/Actdependencia/:codJardin', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, f.nombre, h.zona From dependencia as d Left Join historial as h ON h.codJardin = d.codJardin Left Join funcionario as f ON f.codigo = h.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = true and d.codJardin = ?',req.params.codJardin,(err, rows)=>{
@@ -291,7 +291,7 @@ router.get('/Actdependencia/:codJardin', verificarAuth, (req, res) => {
 
 //PUT Actualizar Datos
 //Obtener equipos Actuales de una dependencia
-router.put('/actualizaEquipo/:idEquipo', verificarAuth, (req, res) => {
+router.put('/actualizaEquipo/:idEquipo', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update equipo Set codEquipo = ?, modelo = ?, serie = ?, estado = ?, condicion = ?, codTipo = (Select codTipo From tipo Where tipoEquipo = ?), codMarca = (Select codMarca From marca Where nomMarca = ?) Where corrEquipo = ?',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.estado, req.body.condicion, req.body.tipoEquipo, req.body.nomMarca, req.params.idEquipo],(err, rows)=>{
@@ -302,7 +302,7 @@ router.put('/actualizaEquipo/:idEquipo', verificarAuth, (req, res) => {
 })
 
 //Actualizar el estado del historial
-router.put('/actualizaHistorial/:id', verificarAuth, (req, res) => {
+router.put('/actualizaHistorial/:id', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update historial Set estado = false Where codHistorial = ?',[req.params.id],(err, rows)=>{
@@ -313,7 +313,7 @@ router.put('/actualizaHistorial/:id', verificarAuth, (req, res) => {
 })
 
 //Actualizar un funcionario
-router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
+router.put('/actualizaFuncionario/:codigo', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update funcionario Set codFuncionario = ?, nombre = ?, correo = ?, rut = ? Where codigo = ?',[req.body.codFuncionario, req.body.nombre, req.body.correo, req.body.rut, req.params.codigo],(err, rows)=>{
@@ -324,7 +324,7 @@ router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
 })
 
 //Editar dependencia
-router.put('/actualizaDependencia/:codJardin', verificarAuth, (req, res) => {
+router.put('/actualizaDependencia/:codJardin', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update dependencia Set nomJardin = ?, numUbicacion = (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?), codigo = (Select codigo From funcionario Where nombre = ?) Where codJardin = ?',[req.body.nomJardin, req.body.region, req.body.comuna, req.body.provincia, req.body.nombre, req.params.codJardin],(err, rows)=>{
