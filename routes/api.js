@@ -93,7 +93,7 @@ router.post('/agregaHistorial', (req,res) => {
 router.get('/equiposConDueno', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select h.codHistorial, t.tipoEquipo, e.serie, e.codEquipo, d.nomJardin, d.codJardin, f.nombre, h.zona From equipo as e Left Join historial as h ON h.corrEquipo = e.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join funcionario as f ON f.codigo = h.codigo Where h.estado = true;','',(err, rows)=>{
+        conn.query('Select h.codHistorial, e.corrEquipo, t.tipoEquipo, e.serie, e.estado, e.codEquipo, d.nomJardin, d.codJardin, f.nombre, h.zona From equipo as e Left Join historial as h ON h.corrEquipo = e.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join funcionario as f ON f.codigo = h.codigo Where h.estado = true;','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -104,7 +104,7 @@ router.get('/equiposConDueno', (req, res) => {
 router.get('/equiposSinDueno', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (e.corrEquipo = (Select corrEquipo FRom historial Where estado=false))) and e.estado != "Baja"','',(err, rows)=>{
+        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Left Join historial as h ON h.corrEquipo = e.corrEquipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (h.estado = false)) and e.estado != "Baja"','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -115,7 +115,7 @@ router.get('/equiposSinDueno', (req, res) => {
 router.get('/equiposBaja', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (e.corrEquipo = (Select corrEquipo FRom historial Where estado=false))) and e.estado = "Baja"','',(err, rows)=>{
+        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Left Join historial as h ON h.corrEquipo = e.corrEquipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (h.estado = false)) and e.estado = "Baja"','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -134,6 +134,17 @@ router.get('/datosEqpHist/:id', (req, res) => {
 })
 
 //Obtener datos de equipo en base a su codigo
+router.get('/datosEqpCodigo/:codigo', (req, res) => {
+    req.getConnection((err, conn) => {
+        if(err) return res.send(err)
+        conn.query('Select e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From equipo e, tipo t, marca m Where e.codEquipo = ? and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.codigo,(err, rows)=>{
+            if(err) return res.send(err)
+            res.json(rows)
+        })
+    })
+})
+
+//Obtener datos de equipo en base a su serie
 router.get('/datosEqpSerie/:serie', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
@@ -307,7 +318,7 @@ router.put('/actualizaHistorial/:id', (req, res) => {
         if(err) return res.send(err)
         conn.query('Update historial Set estado = false Where codHistorial = ?',[req.params.id],(err, rows)=>{
             if(err) return res.send(err)
-            res.json(rows)
+            res.json(req.params.id)
         })
     })
 })
