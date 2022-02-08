@@ -122,11 +122,11 @@ router.get('/equiposBaja', (req, res) => {
     })
 })
 
-//Obtener datos de un equipo con la id de historial
-router.get('/datosEqpHist/:id', (req, res) => {
+//Obtener datos de un equipo con la id del equipo
+router.get('/datosEqp/:id', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select e.corrEquipo, e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From historial h, equipo e, tipo t, marca m Where h.codHistorial = ? and h.corrEquipo = e.corrEquipo and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.id,(err, rows)=>{
+        conn.query('Select e.corrEquipo, e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From equipo e, tipo t, marca m Where e.corrEquipo = ? and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.id,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -260,6 +260,17 @@ router.get('/dependencias', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select * From dependencia','',(err, rows)=>{
+            if(err) return res.send(err)
+            res.json(rows)
+        })
+    })
+})
+
+//Obtener dependencias
+router.get('/dependenciasTabla', (req, res) => {
+    req.getConnection((err, conn) => {
+        if(err) return res.send(err)
+        conn.query('Select d.codJardin, d.nomJardin, u.region, u.provincia, u.comuna From dependencia as d, ubicacion as u Where d.numUbicacion = u.numUbicacion','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
