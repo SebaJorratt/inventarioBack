@@ -29,7 +29,6 @@ router.post('/agregaMarca', (req,res) => {
 //Agregar un Tipo
 router.post('/agregaTipo', (req,res) => {
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
         conn.query('INSERT Into tipo (tipoEquipo) VALUES (?)',[req.body.tipoEquipo], (err, rows)=>{
             if(err) return res.send(err)
@@ -41,8 +40,8 @@ router.post('/agregaTipo', (req,res) => {
 //Agregar un Funcionario
 router.post('/agregaFuncionario', (req,res) => {
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
+        console.log(req.body.nombre)
         conn.query('INSERT INTO funcionario (codigo, nombre, codFuncionario, correo, rut) VALUES (?, ?, ?, ?, ?)',[req.body.codigo, req.body.nombre, req.body.codFuncionario, req.body.correo, req.body.rut], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
@@ -53,7 +52,6 @@ router.post('/agregaFuncionario', (req,res) => {
 //Agregar una Dependencia
 router.post('/agregaDependencia', (req,res) => {
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
         conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, codigo, numUbicacion) VALUES ((?), (?), (?), (Select codigo From funcionario Where nombre = ?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and providencia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.nombre, req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
             if(err) return res.send(err)
@@ -104,7 +102,7 @@ router.get('/equiposConDueno', (req, res) => {
 router.get('/equiposSinDueno', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Left Join historial as h ON h.corrEquipo = e.corrEquipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (h.estado = false)) and e.estado != "Baja"','',(err, rows)=>{
+        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where e.corrEquipo NOT IN (Select corrEquipo FRom historial Where estado=true) and e.estado != "Baja"','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -115,7 +113,7 @@ router.get('/equiposSinDueno', (req, res) => {
 router.get('/equiposBaja', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Left Join historial as h ON h.corrEquipo = e.corrEquipo Where ((e.corrEquipo NOT IN (Select corrEquipo FRom historial)) OR (h.estado = false)) and e.estado = "Baja"','',(err, rows)=>{
+        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where e.corrEquipo NOT IN (Select corrEquipo FRom historial Where estado=true) and e.estado = "Baja"','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -336,6 +334,7 @@ router.put('/actualizaHistorial/:id', (req, res) => {
 
 //Actualizar un funcionario
 router.put('/actualizaFuncionario/:codigo', (req, res) => {
+    console.log(req.body)
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update funcionario Set codFuncionario = ?, nombre = ?, correo = ?, rut = ? Where codigo = ?',[req.body.codFuncionario, req.body.nombre, req.body.correo, req.body.rut, req.params.codigo],(err, rows)=>{
