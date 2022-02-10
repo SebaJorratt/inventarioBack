@@ -53,7 +53,7 @@ router.post('/agregaFuncionario', (req,res) => {
 router.post('/agregaDependencia', (req,res) => {
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
-        conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, codigo, numUbicacion) VALUES ((?), (?), (?), (Select codigo From funcionario Where nombre = ?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and providencia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.nombre, req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
+        conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, codigo, numUbicacion) VALUES ((?), (?), (?), (Select codigo From funcionario Where nombre = ?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.nombre, req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -268,7 +268,7 @@ router.get('/dependencias', (req, res) => {
 router.get('/dependenciasTabla', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select d.codJardin, d.nomJardin, u.region, u.provincia, u.comuna From dependencia as d, ubicacion as u Where d.numUbicacion = u.numUbicacion','',(err, rows)=>{
+        conn.query('Select d.codJardin, d.nomJardin, u.region, u.provincia, f.nombre, u.comuna From dependencia as d, funcionario as f, ubicacion as u Where d.numUbicacion = u.numUbicacion and d.codigo = f.codigo','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -279,7 +279,7 @@ router.get('/dependenciasTabla', (req, res) => {
 router.get('/dependencia/:codJardin', (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select d.nomJardin, u.region, u.comuna, u.provincia From dependencia d, ubicacion u where codJardin = ? and u.numUbicacion = d.numUbicacion',req.params.codJardin,(err, rows)=>{
+        conn.query('Select d.nomJardin, f.nombre, u.region, u.comuna, u.provincia From dependencia d, ubicacion u, funcionario f where codJardin = ? and d.codigo = f.codigo and u.numUbicacion = d.numUbicacion',req.params.codJardin,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
