@@ -25,8 +25,9 @@ exports.login = (req, res)=>{
                 }
             }
             else{
-                err = 'El email ingresado es incorrecto';
-                return res.send(err)
+                return res.status(400).json({
+                    mensaje: 'El email ingresado es incorrecto'
+                })
             }
         })
     })
