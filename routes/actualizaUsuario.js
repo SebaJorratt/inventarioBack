@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 exports.put = (req, res)=>{
-    const corrUsuario = req.usuario[0].corrUsuario; 
+    const corrUsuario = req.params.id; 
     const nomUsuario = req.body.nomUsuario;
     const correo = req.body.correo;
 
