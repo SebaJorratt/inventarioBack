@@ -1,5 +1,5 @@
 import express from 'express'
-import { verificarAuth } from '../middlewares/autenticacion';
+import { verificarAuth, verificarAdmin } from '../middlewares/autenticacion';
 const router = express.Router();
 
 //Todas las rutas de POST
@@ -297,6 +297,17 @@ router.get('/Histdependencia/:codJardin', verificarAuth, (req, res) => {
     })
 })
 
+//Obtener el historial de un equipo
+router.get('/HistEquipo/:id', verificarAuth, (req, res) => {
+    req.getConnection((err, conn) => {
+        if(err) return res.send(err)
+        conn.query('Select h.codHistorial, h.zona, d.nomJardin, f.nombre From historial as h left join dependencia as d On d.codJardin = h.codJardin left join funcionario as f on f.codigo = h.codigo left join equipo as e on e.corrEquipo = h.corrEquipo Where e.corrEquipo = ? and h.estado = 0;',req.params.id,(err, rows)=>{
+            if(err) return res.send(err)
+            res.json(rows)
+        })
+    })
+})
+
 //Obtener equipos Actuales de una dependencia
 router.get('/Actdependencia/:codJardin', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
@@ -322,7 +333,7 @@ router.put('/actualizaEquipo/:idEquipo', verificarAuth, (req, res) => {
 })
 
 //Actualizar el estado del historial
-router.put('/actualizaHistorial/:id', verificarAuth,(req, res) => {
+router.put('/actualizaHistorial/:id', verificarAuth, verificarAdmin, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update historial Set estado = false Where codHistorial = ?',[req.params.id],(err, rows)=>{
