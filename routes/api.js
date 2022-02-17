@@ -235,7 +235,7 @@ router.get('/funcionario/:codigo', verificarAuth, (req, res) => {
 router.get('/Histfuncionario/:codigo', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, d.nomJardin, h.zona FROM funcionario as f Left Join historial as h ON h.codigo = f.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and f.codigo = ?',req.params.codigo,(err, rows)=>{
+        conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, d.nomJardin, DATE_FORMAT(h.fecha,"%d/%m/%y") as fecha, h.zona FROM funcionario as f Left Join historial as h ON h.codigo = f.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and f.codigo = ?',req.params.codigo,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -290,7 +290,7 @@ router.get('/dependencia/:codJardin', verificarAuth, (req, res) => {
 router.get('/Histdependencia/:codJardin', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, f.nombre, h.zona From dependencia as d Left Join historial as h ON h.codJardin = d.codJardin Left Join funcionario as f ON f.codigo = h.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and d.codJardin = ?',req.params.codJardin,(err, rows)=>{
+        conn.query('Select h.codHistorial, e.codEquipo, t.tipoEquipo, e.serie, e.modelo, m.nomMarca, f.nombre, DATE_FORMAT(h.fecha,"%d/%m/%y") as fecha, h.zona From dependencia as d Left Join historial as h ON h.codJardin = d.codJardin Left Join funcionario as f ON f.codigo = h.codigo Left Join equipo as e ON e.corrEquipo = h.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join marca as m ON m.codMarca = e.codMarca Where h.estado = false and d.codJardin = ?',req.params.codJardin,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -301,7 +301,7 @@ router.get('/Histdependencia/:codJardin', verificarAuth, (req, res) => {
 router.get('/HistEquipo/:id', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select h.codHistorial, h.zona, d.nomJardin, f.nombre From historial as h left join dependencia as d On d.codJardin = h.codJardin left join funcionario as f on f.codigo = h.codigo left join equipo as e on e.corrEquipo = h.corrEquipo Where e.corrEquipo = ? and h.estado = 0;',req.params.id,(err, rows)=>{
+        conn.query('Select h.codHistorial, e.codEquipo, h.zona, d.nomJardin, f.nombre, DATE_FORMAT(h.fecha,"%d/%m/%y") as fecha From historial as h left join dependencia as d On d.codJardin = h.codJardin left join funcionario as f on f.codigo = h.codigo left join equipo as e on e.corrEquipo = h.corrEquipo Where e.corrEquipo = ? and h.estado = 0;',req.params.id,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -336,7 +336,7 @@ router.put('/actualizaEquipo/:idEquipo', verificarAuth, (req, res) => {
 router.put('/actualizaHistorial/:id', verificarAuth, verificarAdmin, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Update historial Set estado = false Where codHistorial = ?',[req.params.id],(err, rows)=>{
+        conn.query('Update historial Set estado = false, fecha = ? Where codHistorial = ?',[req.body.fecha, req.params.id],(err, rows)=>{
             if(err) return res.send(err)
             res.json(req.params.id)
         })
