@@ -1,6 +1,7 @@
 import express from 'express'
 import { verificarAuth, verificarAdmin } from '../middlewares/autenticacion';
 const router = express.Router();
+import * as fs from 'fs';
 
 //Todas las rutas de POST
 //Agregar una ubicacion
@@ -88,7 +89,14 @@ router.post('/agregaHistorial', verificarAuth, (req,res) => {
 //PRIMERA VISTA
 //Desplegar a los equipos que actualmente tienen un dueño
 
-router.get('/equiposConDueno', verificarAuth, (req, res) => {
+router.get('/equiposConDueno', verificarAuth, (req, res) => {/*
+    const data = fs.readFile("./imagenes/hola.txt",{encoding:'utf8', flag:'r'},
+    function(err, data) {
+        if(err)
+            console.log(err);
+        else
+            console.log(data);
+    })*/
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.corrEquipo, t.tipoEquipo, e.serie, e.estado, e.codEquipo, d.nomJardin, d.codJardin, f.nombre, h.zona, DATE_FORMAT(h.fechaInicio,"%d/%m/%y") as fechaInicio From equipo as e Left Join historial as h ON h.corrEquipo = e.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join funcionario as f ON f.codigo = h.codigo Where h.estado = true;','',(err, rows)=>{
@@ -96,6 +104,20 @@ router.get('/equiposConDueno', verificarAuth, (req, res) => {
             res.json(rows)
         })
     })
+})
+
+router.get('/logojunji', verificarAuth, (req, res) => {
+    var data = fs.readFile("./imagenes/logo.png",{},
+    function(err, data) {
+        if(err)
+            console.log(err);
+        else{
+            console.log(data)
+            res.json(data);
+        }
+    })/*
+    var filepath = 'D:/inventarioInformatico/inventario/inventarioBack/imagenes/logojunji.png'
+    res.sendFile(filepath);*/
 })
 
 //Desplegar a los equipos que actualmente no tienen un dueño
