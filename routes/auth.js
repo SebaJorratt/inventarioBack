@@ -21,4 +21,11 @@ router.get('/obtenUsuario/:id', verificarAuth, verificarAdmin, obtenerDatos.getU
 router.delete('/eliminaUsuario/:id', verificarAuth, verificarAdmin, eliminaUsuario.delete)
 router.get('/obtenerUsuarios', verificarAuth, verificarAdmin, obtenerUsuarios.get)
 
+router.use((error, req, res, next) => {
+    res.status(400).json({
+      status: 'error',
+      message: error.message,
+    })
+})
+
 module.exports = router;

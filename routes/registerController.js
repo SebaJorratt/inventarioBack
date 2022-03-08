@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const validations = require('../middlewares/validations')
+
 exports.register = (req, res)=>{
+    validations.UsuarioValidate(req.body)
     const nomUsuario = req.body.nomUsuario;
     const correo = req.body.correo;
     const password = bcrypt.hashSync(req.body.password, saltRounds);
