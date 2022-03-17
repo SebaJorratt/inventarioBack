@@ -89,14 +89,7 @@ router.post('/agregaHistorial', verificarAuth, (req,res) => {
 //PRIMERA VISTA
 //Desplegar a los equipos que actualmente tienen un dueño
 
-router.get('/equiposConDueno', verificarAuth, (req, res) => {/*
-    const data = fs.readFile("./imagenes/hola.txt",{encoding:'utf8', flag:'r'},
-    function(err, data) {
-        if(err)
-            console.log(err);
-        else
-            console.log(data);
-    })*/
+router.get('/equiposConDueno', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Select h.codHistorial, e.corrEquipo, t.tipoEquipo, e.serie, e.estado, e.codEquipo, d.nomJardin, d.codJardin, f.nombre, h.zona, DATE_FORMAT(h.fechaInicio,"%d/%m/%y") as fechaInicio From equipo as e Left Join historial as h ON h.corrEquipo = e.corrEquipo Left Join tipo as t ON t.codTipo = e.codTipo Left Join dependencia as d ON d.codJardin = h.codJardin Left Join funcionario as f ON f.codigo = h.codigo Where h.estado = true;','',(err, rows)=>{
