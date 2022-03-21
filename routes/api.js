@@ -43,7 +43,7 @@ router.post('/agregaFuncionario', verificarAuth, (req,res) => {
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         console.log(req.body.nombre)
-        conn.query('INSERT INTO funcionario (codigo, nombre, codFuncionario, correo, rut) VALUES (?, ?, ?, ?, ?)',[req.body.codigo, req.body.nombre, req.body.codFuncionario, req.body.correo, req.body.rut], (err, rows)=>{
+        conn.query('INSERT INTO funcionario (codigo, nombre, codFuncionario, correo, rut, codJardin, encargado) VALUES (?, ?, ?, ?, ?, ?, ?)',[req.body.codigo, req.body.nombre, req.body.codFuncionario, req.body.correo, req.body.rut, req.body.codJardin, req.body.encargado], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -54,7 +54,7 @@ router.post('/agregaFuncionario', verificarAuth, (req,res) => {
 router.post('/agregaDependencia', verificarAuth, (req,res) => {
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
-        conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, codigo, numUbicacion) VALUES ((?), (?), (?), (Select codigo From funcionario Where nombre = ?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.nombre, req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
+        conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, numUbicacion) VALUES ((?), (?), (?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -97,20 +97,6 @@ router.get('/equiposConDueno', verificarAuth, (req, res) => {
             res.json(rows)
         })
     })
-})
-
-router.get('/logojunji', verificarAuth, (req, res) => {
-    var data = fs.readFile("./imagenes/logo.png",{},
-    function(err, data) {
-        if(err)
-            console.log(err);
-        else{
-            console.log(data)
-            res.json(data);
-        }
-    })/*
-    var filepath = 'D:/inventarioInformatico/inventario/inventarioBack/imagenes/logojunji.png'
-    res.sendFile(filepath);*/
 })
 
 //Desplegar a los equipos que actualmente no tienen un dueño
@@ -283,7 +269,7 @@ router.get('/dependencias', verificarAuth, (req, res) => {
 router.get('/dependenciasTabla', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select d.codJardin, d.nomJardin, u.region, u.provincia, f.nombre, u.comuna From dependencia as d, funcionario as f, ubicacion as u Where d.numUbicacion = u.numUbicacion and d.codigo = f.codigo','',(err, rows)=>{
+        conn.query('Select d.codJardin, d.nomJardin, u.region, u.provincia, u.comuna From dependencia as d LEFT JOIN ubicacion as u ON d.numUbicacion = u.numUbicacion','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -294,7 +280,7 @@ router.get('/dependenciasTabla', verificarAuth, (req, res) => {
 router.get('/dependencia/:codJardin', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select d.nomJardin, f.nombre, u.region, u.comuna, u.provincia From dependencia d, ubicacion u, funcionario f where codJardin = ? and d.codigo = f.codigo and u.numUbicacion = d.numUbicacion',req.params.codJardin,(err, rows)=>{
+        conn.query('Select d.nomJardin, u.region, u.comuna, u.provincia From dependencia d, ubicacion u where codJardin = ? and u.numUbicacion = d.numUbicacion',req.params.codJardin,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -363,7 +349,7 @@ router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
     console.log(req.body)
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Update funcionario Set codFuncionario = ?, nombre = ?, correo = ?, rut = ? Where codigo = ?',[req.body.codFuncionario, req.body.nombre, req.body.correo, req.body.rut, req.params.codigo],(err, rows)=>{
+        conn.query('Update funcionario Set codFuncionario = ?, nombre = ?, correo = ?, rut = ?, codJardin = ?, encargado = ? Where codigo = ?',[req.body.codFuncionario, req.body.nombre, req.body.correo, req.body.rut, req.body.codJardin, req.body.encargado, req.params.codigo],(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -374,7 +360,7 @@ router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
 router.put('/actualizaDependencia/:codJardin', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Update dependencia Set nomJardin = ?, numUbicacion = (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?), codigo = (Select codigo From funcionario Where nombre = ?) Where codJardin = ?',[req.body.nomJardin, req.body.region, req.body.comuna, req.body.provincia, req.body.nombre, req.params.codJardin],(err, rows)=>{
+        conn.query('Update dependencia Set nomJardin = ?, numUbicacion = (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?) Where codJardin = ?',[req.body.nomJardin, req.body.region, req.body.comuna, req.body.provincia, req.params.codJardin],(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
