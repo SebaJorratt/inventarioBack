@@ -1,11 +1,12 @@
 import express from 'express'
 import { verificarAuth, verificarAdmin } from '../middlewares/autenticacion';
 const router = express.Router();
-import * as fs from 'fs';
+const validations = require('../middlewares/validations')
 
 //Todas las rutas de POST
 //Agregar una ubicacion
 router.post('/agregaUbicacion', verificarAuth, (req,res) => {
+    validations.UbicacionValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         conn.query('INSERT INTO ubicacion (comuna, provincia, region) VALUES (?,?,?)',[req.body.comuna, req.body.provincia, req.body.region], (err, rows)=>{
@@ -17,6 +18,7 @@ router.post('/agregaUbicacion', verificarAuth, (req,res) => {
 
 //Agregar una Marca
 router.post('/agregaMarca', verificarAuth, (req,res) => {
+    validations.MarcaValidate(req.body)
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
@@ -29,6 +31,7 @@ router.post('/agregaMarca', verificarAuth, (req,res) => {
 
 //Agregar un Tipo
 router.post('/agregaTipo', verificarAuth, (req,res) => {
+    validations.TipoValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         conn.query('INSERT Into tipo (tipoEquipo) VALUES (?)',[req.body.tipoEquipo], (err, rows)=>{
@@ -40,6 +43,7 @@ router.post('/agregaTipo', verificarAuth, (req,res) => {
 
 //Agregar un Funcionario
 router.post('/agregaFuncionario', verificarAuth, (req,res) => {
+    validations.FuncionarioValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         console.log(req.body.nombre)
@@ -52,6 +56,7 @@ router.post('/agregaFuncionario', verificarAuth, (req,res) => {
 
 //Agregar una Dependencia
 router.post('/agregaDependencia', verificarAuth, (req,res) => {
+    validations.DependenciaValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
         conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, numUbicacion) VALUES ((?), (?), (?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
@@ -63,10 +68,11 @@ router.post('/agregaDependencia', verificarAuth, (req,res) => {
 
 //Agregar un Equipo
 router.post('/agregaEquipo', verificarAuth, (req,res) => {
+    validations.EquipoValidate(req.body)
     req.getConnection((err, conn)=>{
         console.log(req.body.nomMarca)
         if(err) return res.send(err)
-        conn.query('INSERT INTO equipo (codEquipo, modelo, serie, codTipo, codMarca, estado, condicion) VALUES ((?), (?), (?), (Select codTipo From tipo Where tipoEquipo = ?), (Select codMarca From marca Where nomMarca = ?), ?, ?)',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.tipoEquipo, req.body.nomMarca, req.body.estado, req.body.condicion], (err, rows)=>{
+        conn.query('INSERT INTO equipo (codEquipo, modelo, serie, codTipo, codMarca, estado, condicion, VA, compañia, pulgadas, MAC, procesador, RAM, discoDuro, IMEI, capacidad, lumenes) VALUES ((?), (?), (?), (Select codTipo From tipo Where tipoEquipo = ?), (Select codMarca From marca Where nomMarca = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.tipoEquipo, req.body.nomMarca, req.body.estado, req.body.condicion, req.body.va, req.body.compañia, req.body.pulgadas, req.body.mac, req.body.procesador, req.body.ram, req.body.discoDuro, req.body.imei, req.body.capacidad, req.body.lumenes], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -125,7 +131,7 @@ router.get('/equiposBaja', verificarAuth, (req, res) => {
 router.get('/datosEqp/:id', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select e.corrEquipo, e.codEquipo, e.modelo, t.tipoEquipo, e.serie, m.nomMarca, e.estado, e.condicion From equipo e, tipo t, marca m Where e.corrEquipo = ? and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.id,(err, rows)=>{
+        conn.query('Select e.corrEquipo, e.codEquipo, e.modelo, t.tipoEquipo, t.codTipo, e.serie, m.nomMarca, e.estado, e.condicion, e.VA, e.compañia, e.pulgadas, e.MAC, e.procesador, e.RAM, e.discoDuro, e.IMEI, e.capacidad, e.lumenes From equipo e, tipo t, marca m Where e.corrEquipo = ? and e.codMarca = m.codMarca and e.codTipo = t.codTipo',req.params.id,(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -192,7 +198,7 @@ router.get('/comunas/:provincia', verificarAuth, (req, res) => {
 router.get('/tipos', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select tipoEquipo FROM tipo','',(err, rows)=>{
+        conn.query('Select tipoEquipo, codTipo FROM tipo','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -324,9 +330,10 @@ router.get('/Actdependencia/:codJardin', verificarAuth, (req, res) => {
 //PUT Actualizar Datos
 //Obtener equipos Actuales de una dependencia
 router.put('/actualizaEquipo/:idEquipo', verificarAuth, (req, res) => {
+    validations.EquipoValidate(req.body)
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Update equipo Set codEquipo = ?, modelo = ?, serie = ?, estado = ?, condicion = ?, codTipo = (Select codTipo From tipo Where tipoEquipo = ?), codMarca = (Select codMarca From marca Where nomMarca = ?) Where corrEquipo = ?',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.estado, req.body.condicion, req.body.tipoEquipo, req.body.nomMarca, req.params.idEquipo],(err, rows)=>{
+        conn.query('Update equipo Set codEquipo = ?, modelo = ?, serie = ?, estado = ?, condicion = ?, codTipo = (Select codTipo From tipo Where tipoEquipo = ?), codMarca = (Select codMarca From marca Where nomMarca = ?), VA = ?, compañia = ?, pulgadas = ?, MAC = ?, procesador = ?, RAM = ?, discoDuro = ?, IMEI = ?, capacidad = ?, lumenes = ? Where corrEquipo = ?',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.estado, req.body.condicion, req.body.tipoEquipo, req.body.nomMarca, req.body.va, req.body.compañia, req.body.pulgadas, req.body.mac, req.body.procesador, req.body.ram, req.body.discoDuro, req.body.imei, req.body.capacidad, req.body.lumenes, req.params.idEquipo],(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -344,8 +351,20 @@ router.put('/actualizaHistorial/:id', verificarAuth, verificarAdmin, (req, res) 
     })
 })
 
+//Actualiza la zona de un historial
+router.put('/actualizaZona/:id', verificarAuth, (req, res) => {
+    req.getConnection((err, conn) => {
+        if(err) return res.send(err)
+        conn.query('Update historial Set zona = ? Where codHistorial = ?',[req.body.zona, req.params.id],(err, rows)=>{
+            if(err) return res.send(err)
+            res.json(req.params.id)
+        })
+    })
+})
+
 //Actualizar un funcionario
 router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
+    validations.FuncionarioValidate(req.body)
     console.log(req.body)
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
@@ -364,6 +383,13 @@ router.put('/actualizaDependencia/:codJardin', verificarAuth, (req, res) => {
             if(err) return res.send(err)
             res.json(rows)
         })
+    })
+})
+
+router.use((error, req, res, next) => {
+    res.status(400).json({
+      status: 'error',
+      message: error.message,
     })
 })
 

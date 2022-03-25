@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const validations = require('../middlewares/validations')
+
 exports.put = (req, res)=>{
+    validations.PutUsuarioSinContra(req.body)
     const corrUsuario = req.params.id; 
     const nomUsuario = req.body.nomUsuario;
     const correo = req.body.correo;
@@ -33,6 +36,7 @@ exports.put = (req, res)=>{
                         }
                         else{
                             if(req.body.password){
+                                validations.PutContraseña(req.body)
                                 const password = req.body.password
                                 const newPassword = bcrypt.hashSync(req.body.newPassword, saltRounds);
                                 req.getConnection((err, conn) => {
