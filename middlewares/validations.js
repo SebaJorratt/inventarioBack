@@ -69,19 +69,19 @@ function EquipoValidate(data, next){
     if(/^[0-9]+$/i.test(data.compañia)){
         throw new Error('La compañia debe contener letras')
     }
-    if(!/^[0-9]+$/i.test(data.va)){
+    if(!/^[0-9]+$/i.test(data.va) && data.va !== null){
         throw new Error('El va debe ser un valor numerico')
     }
-    if(!/^[0-9]+$/i.test(data.pulgadas)){
+    if(!/^[0-9]+$/i.test(data.pulgadas) && data.pulgadas !== null){
         throw new Error('Las pulgadas debe ser un valor numerico')
     }
-    if(!/^[0-9]+$/i.test(data.ram)){
+    if(!/^[0-9]+$/i.test(data.ram) && data.ram !== null){
         throw new Error('La RAM debe ser un valor numerico')
     }
-    if(!/^[0-9]+$/i.test(data.capacidad)){
+    if(!/^[0-9]+$/i.test(data.capacidad) && data.capacidad !== null){
         throw new Error('La Capacidad debe ser un valor numerico')
     }
-    if(!/^[0-9]+$/i.test(data.lumenes)){
+    if(!/^[0-9]+$/i.test(data.lumenes) && data.lumenes !== null){
         throw new Error('Los lumenes debe tener un valor numerico')
     }
 }

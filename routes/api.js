@@ -120,7 +120,7 @@ router.get('/equiposSinDueno', verificarAuth, (req, res) => {
 router.get('/equiposBaja', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
-        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where e.corrEquipo NOT IN (Select corrEquipo FRom historial Where estado=true) and e.estado = "Baja"','',(err, rows)=>{
+        conn.query('Select e.corrEquipo, t.tipoEquipo, e.serie, e.codEquipo, m.nomMarca, e.modelo From equipo as e Left Join marca as m ON e.codMarca = m.codMarca Left Join tipo as t ON e.codTipo = t.codTipo Where e.estado = "Baja"','',(err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
