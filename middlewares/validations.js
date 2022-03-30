@@ -66,7 +66,7 @@ function EquipoValidate(data, next){
     if(/^[0-9]+$/i.test(data.condicion)){
         throw new Error('La condición debe contener letras')
     }
-    if(/^[0-9]+$/i.test(data.compañia)){
+    if(/^[0-9]+$/i.test(data.compañia) && data.compañia !== null){
         throw new Error('La compañia debe contener letras')
     }
     if(!/^[0-9]+$/i.test(data.va) && data.va !== null){

@@ -59,7 +59,7 @@ router.post('/agregaDependencia', verificarAuth, (req,res) => {
     validations.DependenciaValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
-        conn.query('INSERT INTO dependencia (codJardin, nomJardin, division, numUbicacion) VALUES ((?), (?), (?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, 'division', req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
+        conn.query('INSERT INTO dependencia (codJardin, nomJardin, numUbicacion) VALUES ((?), (?), (Select numUbicacion From ubicacion Where region = ? and comuna = ? and provincia = ?))',[req.body.codJardin, req.body.nomJardin, req.body.region, req.body.comuna, req.body.provincia], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
         })
@@ -70,7 +70,6 @@ router.post('/agregaDependencia', verificarAuth, (req,res) => {
 router.post('/agregaEquipo', verificarAuth, (req,res) => {
     validations.EquipoValidate(req.body)
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
         conn.query('INSERT INTO equipo (codEquipo, modelo, serie, codTipo, codMarca, estado, condicion, VA, compañia, pulgadas, MAC, procesador, RAM, discoDuro, IMEI, capacidad, lumenes) VALUES ((?), (?), (?), (Select codTipo From tipo Where tipoEquipo = ?), (Select codMarca From marca Where nomMarca = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',[req.body.codEquipo, req.body.modelo, req.body.serie, req.body.tipoEquipo, req.body.nomMarca, req.body.estado, req.body.condicion, req.body.va, req.body.compañia, req.body.pulgadas, req.body.mac, req.body.procesador, req.body.ram, req.body.discoDuro, req.body.imei, req.body.capacidad, req.body.lumenes], (err, rows)=>{
             if(err) return res.send(err)
