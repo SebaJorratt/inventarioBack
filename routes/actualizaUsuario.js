@@ -49,7 +49,6 @@ exports.put = (req, res)=>{
                                         }
                                         else if(rows.length > 0){
                                             const data = rows;
-                                            console.log(rows)
                                             if(bcrypt.compareSync(password, data[0].password)){
                                                 req.getConnection((err, conn) => {
                                                     if(err){

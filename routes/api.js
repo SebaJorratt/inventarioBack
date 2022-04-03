@@ -20,7 +20,6 @@ router.post('/agregaUbicacion', verificarAuth, (req,res) => {
 router.post('/agregaMarca', verificarAuth, (req,res) => {
     validations.MarcaValidate(req.body)
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
         conn.query('INSERT INTO marca (nomMarca) VALUES (?)',[req.body.nomMarca], (err, rows)=>{
             if(err) return res.send(err)
@@ -46,7 +45,6 @@ router.post('/agregaFuncionario', verificarAuth, (req,res) => {
     validations.FuncionarioValidate(req.body)
     req.getConnection((err, conn)=>{
         if(err) return res.send(err)
-        console.log(req.body.nombre)
         conn.query('INSERT INTO funcionario (codigo, nombre, codFuncionario, correo, rut, codJardin, encargado) VALUES (?, ?, ?, ?, ?, ?, ?)',[req.body.codigo, req.body.nombre, req.body.codFuncionario, req.body.correo, req.body.rut, req.body.codJardin, req.body.encargado], (err, rows)=>{
             if(err) return res.send(err)
             res.json(rows)
@@ -81,7 +79,6 @@ router.post('/agregaEquipo', verificarAuth, (req,res) => {
 //Agregar un Historial
 router.post('/agregaHistorial', verificarAuth, (req,res) => {
     req.getConnection((err, conn)=>{
-        console.log(req.body.nomMarca)
         if(err) return res.send(err)
         conn.query('INSERT INTO historial (estado, zona, codigo, codJardin, corrEquipo, fechaInicio) VALUES ((?), (?), (Select f.codigo From funcionario f Where f.nombre = ?), (Select d.codJardin From dependencia d Where d.nomJardin = ?), (?), (?));',[true, req.body.zona, req.body.nombre, req.body.nomJardin, req.body.corrEquipo, req.body.fechaInicio], (err, rows)=>{
             if(err) return res.send(err)
@@ -226,6 +223,17 @@ router.get('/funcionarios', verificarAuth, (req, res) => {
     })
 })
 
+//Obtener Funcionarios de una DEPENDENCIA
+router.get('/funcionariosDep/:id', verificarAuth, (req, res) => {
+    req.getConnection((err, conn) => {
+        if(err) return res.send(err)
+        conn.query('Select f.codigo, f.nombre From funcionario as f Left Join dependencia as d ON d.codJardin = f.codJardin Where d.codJardin = ?',req.params.id,(err, rows)=>{
+            if(err) return res.send(err)
+            res.json(rows)
+        })
+    })
+})
+
 //Obtener un funcionario desde la tabla para Editarlo
 router.get('/funcionario/:codigo', verificarAuth, (req, res) => {
     req.getConnection((err, conn) => {
@@ -364,7 +372,6 @@ router.put('/actualizaZona/:id', verificarAuth, (req, res) => {
 //Actualizar un funcionario
 router.put('/actualizaFuncionario/:codigo', verificarAuth, (req, res) => {
     validations.FuncionarioValidate(req.body)
-    console.log(req.body)
     req.getConnection((err, conn) => {
         if(err) return res.send(err)
         conn.query('Update funcionario Set codFuncionario = ?, nombre = ?, correo = ?, rut = ?, codJardin = ?, encargado = ? Where codigo = ?',[req.body.codFuncionario, req.body.nombre, req.body.correo, req.body.rut, req.body.codJardin, req.body.encargado, req.params.codigo],(err, rows)=>{

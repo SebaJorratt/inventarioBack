@@ -18,7 +18,7 @@ function UsuarioValidate(data, next){
     if(!/^[a-z0-9_.]+@[a-z0-9]+\.[a-z0-9_.]+$/i.test(data.correo)){
         throw new Error('El formato del correo es erroneo')
     }
-    if(data.tipo !== 1 && data.tipo !==0){
+    if(data.tipo !== 1 && data.tipo !==0 && data.tipo !=='0' && data.tipo !=='1'){
         throw new Error('Se ingreso un tipo diferente a los 2 existentes') 
     }
 }
